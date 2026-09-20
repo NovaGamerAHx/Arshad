@@ -1,0 +1,65 @@
+name: Deploy to GitHub Pages & Upload Artifact
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# تنظیم مجوزها برای دیپلوی روی GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# جلوگیری از اجرای هم‌زمان چند دیپلوی متوالی
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check TypeScript types
+        run: npx tsc --noEmit
+
+      - name: Build project
+        run: npm run build
+
+      # مرحله آپلود آرتیفکت جهت دانلود مستقیم در صفحه اکشنز (دانلود زیپ خروجی برای استفاده لوکال)
+      - name: Upload build artifact for download
+        uses: actions/upload-artifact@v4
+        with:
+          name: arshadyar-dist
+          path: dist/
+          retention-days: 30
+
+      # مراحل دیپلوی روی گیت‌هاب پیجز
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
