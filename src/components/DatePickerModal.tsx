@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { faNum, isoToJ, J_MONTHS, J_WEEKDAYS_MIN, jToISO, monthGridDays, todayISO } from "../lib/jalali";
 import { Modal } from "./ui";
 import { IconChevronL, IconChevronR } from "./Icons";
@@ -111,13 +111,8 @@ export function DatePickerModal({
   title?: string;
   allowClear?: boolean;
 }) {
-  useEffect(() => {
-    if (!open) return;
-    const h = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
-  }, [open, onClose]);
-
+  /* بدون لیسنر Escape تکراری: خود Modal (با استک مودال‌ها) این کار را می‌کند،
+     تا با یک Escape فقط همین تقویم بسته شود نه مودال زیرین. */
   return (
     <Modal open={open} onClose={onClose} title={title} width="max-w-xs">
       <JalaliCalendar

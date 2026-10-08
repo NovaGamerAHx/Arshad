@@ -3,6 +3,10 @@ import { createPortal } from "react-dom";
 import { faNum } from "../lib/jalali";
 import { IconStar, IconX } from "./Icons";
 
+/* استک مودال‌های باز: فقط رویی‌ترین مودال به Escape جواب می‌دهد تا
+   با یک بار Escape، مودال زیرین (مثلاً پیش‌نویس «تسک جدید») بسته نشود. */
+const modalStack: symbol[] = [];
+
 /* ---------------- Modal ---------------- */
 export function Modal({
   open,
@@ -17,12 +21,25 @@ export function Modal({
   children: ReactNode;
   width?: string;
 }) {
+  /* onClose را در ref نگه می‌داریم تا با هر رندر والد، اشتراک Escape
+     (و ترتیب استک مودال‌ها) به‌هم نریزد. */
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
     if (!open) return;
-    const h = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const id = Symbol("modal");
+    modalStack.push(id);
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && modalStack[modalStack.length - 1] === id) onCloseRef.current();
+    };
     window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
-  }, [open, onClose]);
+    return () => {
+      window.removeEventListener("keydown", h);
+      const i = modalStack.indexOf(id);
+      if (i > -1) modalStack.splice(i, 1);
+    };
+  }, [open]);
 
   if (!open) return null;
   /* پورتال روی body: اگر مودال داخل عنصری با translate/transform رندر شود
