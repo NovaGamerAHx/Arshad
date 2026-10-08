@@ -81,10 +81,10 @@ function SubRow({ subject, topic, subId, text }: { subject: Subject; topic: Topi
     <div className="group flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition hover:bg-soft">
       <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: lvl.hex }} />
       <span className="flex-1 text-[13px] font-semibold leading-6 text-ink">{text}</span>
-      <button onClick={() => { setDraft(text); setEditing(true); }} className="rounded-md p-1 text-mut opacity-0 transition hover:text-brand group-hover:opacity-100" aria-label="ویرایش">
+      <button onClick={() => { setDraft(text); setEditing(true); }} className="touch-visible rounded-md p-1 text-mut opacity-0 transition hover:text-brand group-hover:opacity-100" aria-label="ویرایش">
         <IconPencil size={13} />
       </button>
-      <button onClick={() => deleteSubtopic(subject.id, topic.id, subId)} className="rounded-md p-1 text-mut opacity-0 transition hover:text-rose-600 group-hover:opacity-100" aria-label="حذف">
+      <button onClick={() => deleteSubtopic(subject.id, topic.id, subId)} className="touch-visible rounded-md p-1 text-mut opacity-0 transition hover:text-rose-600 group-hover:opacity-100" aria-label="حذف">
         <IconX size={14} />
       </button>
     </div>

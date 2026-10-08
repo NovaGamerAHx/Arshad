@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { faNum } from "../lib/jalali";
 import { IconStar, IconX } from "./Icons";
+
+/* استک مودال‌های باز: فقط رویی‌ترین مودال به Escape جواب می‌دهد تا
+   با یک بار Escape، مودال زیرین (مثلاً پیش‌نویس «تسک جدید») بسته نشود. */
+const modalStack: symbol[] = [];
 
 /* ---------------- Modal ---------------- */
 export function Modal({
@@ -16,15 +21,31 @@ export function Modal({
   children: ReactNode;
   width?: string;
 }) {
+  /* onClose را در ref نگه می‌داریم تا با هر رندر والد، اشتراک Escape
+     (و ترتیب استک مودال‌ها) به‌هم نریزد. */
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
     if (!open) return;
-    const h = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const id = Symbol("modal");
+    modalStack.push(id);
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && modalStack[modalStack.length - 1] === id) onCloseRef.current();
+    };
     window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
-  }, [open, onClose]);
+    return () => {
+      window.removeEventListener("keydown", h);
+      const i = modalStack.indexOf(id);
+      if (i > -1) modalStack.splice(i, 1);
+    };
+  }, [open]);
 
   if (!open) return null;
-  return (
+  /* پورتال روی body: اگر مودال داخل عنصری با translate/transform رندر شود
+     (مثل کارت تسک با hover:-translate-y)، آن عنصر containing block برای
+     fixed می‌شود و مودال به اندازه همان کارت کوچک می‌شود. */
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-6">
       <div className="absolute inset-0 bg-[#0b1220]/55 backdrop-blur-[3px]" onClick={onClose} />
       <div
@@ -44,7 +65,8 @@ export function Modal({
         )}
         <div className="p-5">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

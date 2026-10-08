@@ -20,10 +20,12 @@ function NoteModal({
   open,
   onClose,
   note,
+  onDelete,
 }: {
   open: boolean;
   onClose: () => void;
   note: Note | null;
+  onDelete?: (note: Note) => void;
 }) {
   const { state, addNote, updateNote, toast } = useStore();
   const [title, setTitle] = useState("");
@@ -128,6 +130,15 @@ function NoteModal({
         </div>
         {err && <p className="rounded-xl bg-rose-50 px-3 py-2 text-[13px] font-bold text-rose-600 dark:bg-rose-950/40">{err}</p>}
         <div className="flex justify-end gap-2 pt-1">
+          {note && onDelete && (
+            <button
+              onClick={() => onDelete(note)}
+              className="me-auto inline-flex items-center gap-1.5 rounded-xl border border-rose-200 px-4 py-2.5 text-sm font-bold text-rose-600 transition hover:bg-rose-50 active:scale-95 dark:border-rose-900/60 dark:hover:bg-rose-950/40"
+            >
+              <IconTrash size={16} />
+              حذف
+            </button>
+          )}
           <button onClick={onClose} className="rounded-xl border border-line px-4 py-2.5 text-sm font-bold text-ink transition hover:bg-soft">
             انصراف
           </button>
@@ -279,14 +290,14 @@ export function NotesPage({ navigate, initialFilter }: { navigate: (r: Route) =>
                       <button
                         onClick={(e) => { e.stopPropagation(); setEditor({ open: true, note: n }); }}
                         title="ویرایش"
-                        className="rounded-lg p-1.5 text-mut opacity-0 transition hover:bg-soft hover:text-brand group-hover:opacity-100"
+                        className="touch-visible rounded-lg p-1.5 text-mut opacity-0 transition hover:bg-soft hover:text-brand group-hover:opacity-100"
                       >
                         <IconPencil size={15} />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setConfirmDel(n); }}
                         title="حذف"
-                        className="rounded-lg p-1.5 text-mut opacity-0 transition hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100 dark:hover:bg-rose-950/40"
+                        className="touch-visible rounded-lg p-1.5 text-mut opacity-0 transition hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100 dark:hover:bg-rose-950/40"
                       >
                         <IconTrash size={15} />
                       </button>
@@ -333,7 +344,15 @@ export function NotesPage({ navigate, initialFilter }: { navigate: (r: Route) =>
         <IconChevronL size={17} className="text-mut/40 transition group-hover:-translate-x-1 group-hover:text-brand" />
       </button>
 
-      <NoteModal open={editor.open} onClose={() => setEditor({ open: false, note: null })} note={editor.note} />
+      <NoteModal
+        open={editor.open}
+        onClose={() => setEditor({ open: false, note: null })}
+        note={editor.note}
+        onDelete={(n) => {
+          setEditor({ open: false, note: null });
+          setConfirmDel(n);
+        }}
+      />
       <ConfirmModal
         open={confirmDel !== null}
         onClose={() => setConfirmDel(null)}
