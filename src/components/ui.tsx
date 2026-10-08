@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { faNum } from "../lib/jalali";
 import { IconStar, IconX } from "./Icons";
 
@@ -24,7 +25,10 @@ export function Modal({
   }, [open, onClose]);
 
   if (!open) return null;
-  return (
+  /* پورتال روی body: اگر مودال داخل عنصری با translate/transform رندر شود
+     (مثل کارت تسک با hover:-translate-y)، آن عنصر containing block برای
+     fixed می‌شود و مودال به اندازه همان کارت کوچک می‌شود. */
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-6">
       <div className="absolute inset-0 bg-[#0b1220]/55 backdrop-blur-[3px]" onClick={onClose} />
       <div
@@ -44,7 +48,8 @@ export function Modal({
         )}
         <div className="p-5">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
