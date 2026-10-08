@@ -192,7 +192,7 @@ export function TaskCard({
           </div>
 
           {view === "board" && (
-            <div className="flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="touch-visible flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
               <button
                 disabled={!canUp}
                 onClick={onUp}

@@ -133,3 +133,12 @@ input[type="range"].mastery::-moz-range-thumb {
   overflow: hidden;
 }
 .no-select { user-select: none; }
+
+/* روی دستگاه‌های بدون هاور (لمسی)، کنترل‌هایی که فقط با هاور دیده
+   می‌شوند (ویرایش/حذف یادداشت، ویرایش/حذف ریزمبحث، ↑↓ بورد) همیشه
+   دیده شوند؛ وگرنه روی موبایل نامرئی و عملاً غیرقابل استفاده‌اند. */
+@media (hover: none) {
+  .touch-visible {
+    opacity: 1 !important;
+  }
+}
